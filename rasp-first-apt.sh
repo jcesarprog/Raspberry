@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Colors variables
+# ? Colors variables
 end="\e[0m"
 red="\e[31m"
 green="\e[32m"
@@ -14,24 +14,30 @@ suc_fail_func() {
         echo -e "Failure on installing $1" >>  ~/errors.log
     fi
 }
-
+# ? First system update
 sudo apt-get clean
 sudo apt-get update
 sudo apt-get upgrade
 
+# ? Global variables
 user=$(who | awk '{print $1}')
 user_home="/home/$user"
-name=$(lsb_release -sc)
+dist_name=$(lsb_release -sc)
+# dist_name=$(cat /etc/*release | grep "DISTRIB_CODENAME" |  cut -d= -f2)
+# ! master repo
+# gitrepo="https://github.com/jcesarprog/Raspberry"
+# ! dev repo
+gitrepo="https://github.com/jcesarprog/Raspberry/tree/dev/scripts"
 
-# VIM template
+# ? VIM template
 
 echo "Setting up vi theme.\nInstalling vimrc template."
 
 echo -e $bold"Installing vimrc template"$end
 sleep 2
 echo -e $bold"Downloading vimrc template"$end
-wget -P $user_home/ $gitrepo/vimrc
-suc_fail_func "Downloading vimrc template"
+wget -P $user_home/ $gitrepo/.vimrc
+suc_fail_func "Downloading .vimrc template"
 
 version=$(ls /usr/share/vim/ | grep -P "vim[0-9]{2}")
 echo -e $bold"vim-script version: $version"$end
