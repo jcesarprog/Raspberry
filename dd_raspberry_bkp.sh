@@ -15,15 +15,31 @@ fi
 
 OP=$1
 DEVICE=$2
+DATE=$(date +%F_%H-%M-%S)
 
 if [ $OP = '-c' ]
 then
 	# REMOVING THE LAST CHAR IF ITS A /
 	FOLDER="$(echo $3 | sed 's|/$||g')"
+	FullFileName="$FOLDER/rasp-$DATE.img.gz"
 	echo 'CREATING THE IMAGE'
-	echo "Writing from $DEVICE to $FOLDER/rasp-$(date +%F_%H-%M-%S).img.gz"
-	# MAKE IMAGE
-	sudo dd bs=4M if=$DEVICE | gzip > $FOLDER/rasp-$(date +%F_%H-%M-%S).img.gz
+	echo "Writing from $DEVICE to $FOLDER/rasp-$DATE.img.gz"
+	# MAKING THE IMAGE
+	start=`date +%s`
+	
+	sudo dd bs=4M if=$DEVICE | gzip > $FOLDER/rasp-$DATE.img.gz
+	
+	end=`date +%s`
+	runtime=$((end-start))
+	
+	hours=$((runtime / 3600))
+	minutes=$(( (runtime % 3600) / 60 ))
+	seconds=$(( (runtime % 3600) % 60 ))
+
+	BotMessage="Backup made from $DEVICE to $FullFileName in:    $hours:$minutes:$seconds (hh:mm:ss)"
+	echo $BotMessage
+
+
 
 elif [ $OP = '-r' ]
 then
@@ -32,8 +48,27 @@ then
 	FILE=$3
 	echo 'RESTORING THE IMAGE'
 	echo "Restoring image from $FILE to device $DEVICE"
-	# RESTORE IMAGE
+	# RESTORING THE IMAGE
+	start=`date +%s`
+	
 	gunzip --stdout $FILE | sudo dd bs=4M of=$DEVICE
+	
+	end=`date +%s`
+	runtime=$((end-start))
+
+	hours=$((runtime / 3600))
+	minutes=$(( (runtime % 3600) / 60 ))
+	seconds=$(( (runtime % 3600) % 60 ))
+
+	BotMessage="Restored image from $FILE to $DEVICE in:    $hours:$minutes:$seconds (hh:mm:ss)"
+	echo $BotMessage
+
+fi
+
+
+BOT=/usr/bin/telegram_msg
+if [ -f "$BOT" ]; then
+   $BOT "$BotMessage"
 fi
 
 # MAKE IMAGE
@@ -45,6 +80,6 @@ fi
 # TO WATCH file created
 # watch "ls -lh rasp-*.gz | cut -d' ' -f5-10"
 
-
+notify-send "DONE"
 spd-say "DONE"
 exit 0
