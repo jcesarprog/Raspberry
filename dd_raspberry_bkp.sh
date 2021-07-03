@@ -43,7 +43,7 @@ fi
 #gunzip --stdout rasp.img.gz | sudo dd bs=4M of=/dev/sdc
 
 # TO WATCH file created
-# watch "ls -lh rasp-*.gz | cut -d' ' -f5-9"
+# watch "ls -lh rasp-*.gz | cut -d' ' -f5-10"
 
 
 spd-say "DONE"
